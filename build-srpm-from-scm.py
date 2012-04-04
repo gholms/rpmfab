@@ -246,7 +246,7 @@ class SRPMBuilder(object):
                 raise
             finally:
                 modified.close()
-            os.rename(modified.name, self.specfile)
+            shutil.move(modified.name, self.specfile)
 
     def substitute_magic_values(self, macros):
         utcnow = datetime.datetime.utcnow()
