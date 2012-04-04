@@ -174,16 +174,17 @@ def build_repo(url):
         return BzrRepo(basic_url, rev)
     else:
         # assume a local repo exists
-        if os.path.exists(os.path.join(basic_url, '.bzr')):
-            return BzrRepo(basic_url, rev)
-        elif os.path.exists(os.path.join(basic_url, '.git')):
-            return GitRepo(basic_url, rev)
-        elif all([os.path.exists(os.path.join(basic_url, 'HEAD')),
-                  os.path.exists(os.path.join(basic_url, 'objects'))]):
+        path = os.path.abspath(basic_url)
+        if os.path.exists(os.path.join(path, '.bzr')):
+            return BzrRepo(path, rev)
+        elif os.path.exists(os.path.join(path, '.git')):
+            return GitRepo(path, rev)
+        elif all([os.path.exists(os.path.join(path, 'HEAD')),
+                  os.path.exists(os.path.join(path, 'objects'))]):
             # bare git repo
-            return GitRepo(basic_url, rev)
+            return GitRepo(path, rev)
         else:
-            raise ValueError('Unrecognized local repo: ' + repr(basic_url))
+            raise ValueError('Unrecognized local repo: ' + repr(path))
 
 
 class SRPMBuilder(object):
