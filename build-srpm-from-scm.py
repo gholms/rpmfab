@@ -170,6 +170,8 @@ def build_repo(url):
             return GitRepo(basic_url, rev)
         else:
             raise ValueError('Unsupported repo scheme: ' + repr(scheme))
+    elif basic_url.startswith('lp:'):
+        return BzrRepo(basic_url, rev)
     else:
         # assume a local repo exists
         if os.path.exists(os.path.join(basic_url, '.bzr')):
