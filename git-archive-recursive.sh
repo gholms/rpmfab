@@ -1,6 +1,7 @@
 #!/bin/sh
 
 export revision="$1"
+shift
 
 export GIT_INDEX_FILE=".git/tmpindex"
 rm -f "$GIT_INDEX_FILE"
@@ -29,6 +30,6 @@ while git ls-files -s | grep -q ^160000; do
     read_one_level
 done
 
-git archive --format=tar $(git write-tree)
+git archive $@ $(git write-tree)
 
 rm -f "$GIT_INDEX_FILE"
