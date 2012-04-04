@@ -98,7 +98,6 @@ class GitRepo(Repo):
         logging.debug('git ref %s is %s', self._ref or 'HEAD', self.rev)
 
     def create_tarball(self, tarball_name, destdir):
-        ## TODO:  make this work with submodules
         if not self.tree:
             raise RuntimeError('checkout call must precede create_tarball')
         # git archive requires a trailing / to make it a dir
@@ -107,7 +106,9 @@ class GitRepo(Repo):
         logging.debug('Creating tarball %s', tarball)
 
         pushd(self.tree)
-        args = ['git', 'archive', '--prefix', topdir, '-o', tarball, 'HEAD']
+        args = [os.path.join(os.path.dirname(sys.argv[0]),
+                             'git-archive-recursive.sh'),
+                'HEAD', '--prefix', topdir, '-o', tarball]
         logging.debug("Executing ``%s''", ' '.join(args))
         subprocess.check_call(args)
         popd()
@@ -178,10 +179,6 @@ def build_repo(url):
         if os.path.exists(os.path.join(path, '.bzr')):
             return BzrRepo(path, rev)
         elif os.path.exists(os.path.join(path, '.git')):
-            return GitRepo(path, rev)
-        elif all([os.path.exists(os.path.join(path, 'HEAD')),
-                  os.path.exists(os.path.join(path, 'objects'))]):
-            # bare git repo
             return GitRepo(path, rev)
         else:
             raise ValueError('Unrecognized local repo: ' + repr(path))
