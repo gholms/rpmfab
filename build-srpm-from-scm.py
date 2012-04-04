@@ -232,9 +232,10 @@ class SRPMBuilder(object):
                     break
         applicable_macros = self.substitute_magic_values(applicable_macros)
         if applicable_macros:
-            logging.info('Adding %i macro(s) to spec file',
-                         len(applicable_macros))
-            logging.debug('Macros to be added: %s', str(applicable_macros))
+            logging.info('Adding %i macro(s) to spec file: %s',
+                         len(applicable_macros),
+                         ', '.join(applicable_macros.keys()))
+            logging.debug('Macro values: %s', str(applicable_macros))
             modified = tempfile.NamedTemporaryFile(delete=False)
             try:
                 for (key, val) in applicable_macros.iteritems():
