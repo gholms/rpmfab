@@ -17,6 +17,7 @@ import urllib
 
 __version__ = '0.1'
 _DIR_STACK = []
+_ORIG_EXECUTABLE = os.path.abspath(sys.argv[0])
 
 
 def pushd(destdir):
@@ -106,7 +107,7 @@ class GitRepo(Repo):
         logging.debug('Creating tarball %s', tarball)
 
         pushd(self.tree)
-        args = [os.path.join(os.path.dirname(sys.argv[0]),
+        args = [os.path.join(os.path.dirname(_ORIG_EXECUTABLE),
                              'git-archive-recursive.sh'),
                 'HEAD', '--prefix', topdir, '-o', tarball]
         logging.debug("Executing ``%s''", ' '.join(args))
