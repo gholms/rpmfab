@@ -186,10 +186,12 @@ def build_repo(url):
 
 
 class SRPMBuilder(object):
-    def __init__(self, chroot, pkg_repo, sources=None, mock_opts=None):
+    def __init__(self, chroot, pkg_repo, fetch=None, sources=None,
+                 mock_opts=None):
         self.chroot    = chroot
-        self.pkg_repo  = build_repo(pkg_repo)
+        self.fetch     = fetch or []
         self.mock_opts = mock_opts
+        self.pkg_repo  = build_repo(pkg_repo)
         self.specfile  = None
         self.sources   = {}
         for (i, url) in sources or []:
@@ -283,6 +285,10 @@ class SRPMBuilder(object):
                 logging.warn('Spec file does not contain Source%i; skipping '
                              'tarball build for url %s', i, source.url)
 
+    def fetch_sources(self):
+        for source in self.fetch:
+            fetch_file(source)
+
     def fetch_spec_sources(self):
         tset = rpm.ts()
         spec = tset.parseSpec(self.specfile)
@@ -362,6 +368,9 @@ def parse_cli_args():
                       nargs=2, default=[],
                       help=('build a tarball for spec file source N from '
                             'revision control'))
+    parser.add_option('-f', '--fetch', dest='fetches', action='append',
+                      default=[], help=('fetch a source from a location not '
+                                        'listed in the spec file'))
     parser.add_option('-r', '--chroot', default=None,
                       help='mock chroot to use')
     parser.add_option('-w', '--workspace', default=None,
@@ -385,6 +394,7 @@ def parse_cli_args():
 def main():
     (options, args) = parse_cli_args()
     pkg_repo  = args[0]
+    fetches   = map(os.path.abspath, options.fetches)
     resultdir = os.path.abspath(options.resultdir)
     workspace = os.path.abspath(options.workspace)
     builddir  = os.path.join(workspace, 'builddir')
@@ -392,7 +402,7 @@ def main():
                         format='%(asctime)-15s [%(levelname)s] %(message)s')
 
     builder = SRPMBuilder(options.chroot, pkg_repo,
-                          sources=options.sources,
+                          sources=options.sources, fetch=fetches,
                           mock_opts=options.mock_options.split())
     if not os.path.exists(workspace):
         os.makedirs(workspace)
@@ -403,6 +413,7 @@ def main():
     builder.checkout_sources(workspace)
     builder.add_macros_to_specfile(options.macros)
     builder.build_tarballs()
+    builder.fetch_sources()
     builder.fetch_spec_sources()
     builder.build_srpm(resultdir)
     logging.info('Build complete; results in %s', resultdir)
