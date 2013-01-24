@@ -14,8 +14,9 @@ import sys
 import tempfile
 import urlparse
 import urllib
+import mocklib
 
-__version__ = '0.1'
+__version__ = '0.2'
 _DIR_STACK = []
 _ORIG_EXECUTABLE = os.path.abspath(sys.argv[0])
 
@@ -354,8 +355,8 @@ def _parse_macro_def(option, opt, value, parser):
 
 def parse_cli_args():
     usage = ('%prog [-d] [-m KEY=VALUE ...] [-sN SRC_REPO ...] '
-             '[--mock-options OPTS] -r CHROOT -w WORKSPACE -o RESULTDIR '
-             'PKG_REPO')
+             '[--mock-options OPTS] [-r CHROOT | -c CONFIG] -w WORKSPACE '
+             '-o RESULTDIR PKG_REPO')
     parser = optparse.OptionParser(usage=usage,
                                    version='%prog {0}'.format(__version__))
     parser.add_option('-d', '--debug', dest='loglevel', action='store_const',
@@ -373,6 +374,8 @@ def parse_cli_args():
                                         'listed in the spec file'))
     parser.add_option('-r', '--chroot', default=None,
                       help='mock chroot to use')
+    parser.add_option('-c', '--config', default=None,
+                      help='mock config file or url')
     parser.add_option('-w', '--workspace', default=None,
                       help='directory to use as a workspace')
     parser.add_option('-o', '--resultdir', default=None,
@@ -382,8 +385,10 @@ def parse_cli_args():
     (options, args) = parser.parse_args()
     if len(args) != 1:
         parser.error('exactly 1 positional argument is required')
-    if not options.chroot:
-        parser.error('chroot name must be specified with -r')
+    if not options.chroot and not options.config:
+        parser.error('must specify either the chroot or config option')
+    if options.chroot and options.config:
+        parser.error('cannot specify both chroot and config options')
     if not options.workspace:
         parser.error('working directory must be specified with -w')
     if not options.resultdir:
@@ -398,12 +403,22 @@ def main():
     resultdir = os.path.abspath(options.resultdir)
     workspace = os.path.abspath(options.workspace)
     builddir  = os.path.join(workspace, 'builddir')
+    mock_opts = options.mock_options.split()
     logging.basicConfig(stream=sys.stdout, level=options.loglevel,
                         format='%(asctime)-15s [%(levelname)s] %(message)s')
 
-    builder = SRPMBuilder(options.chroot, pkg_repo,
-                          sources=options.sources, fetch=fetches,
-                          mock_opts=options.mock_options.split())
+    mock = None
+
+    if options.config:
+        mock = mocklib.MockTemp(logging, mock_opts=mock_opts)
+        mock.apply_config(options.config)
+        builder = SRPMBuilder(mock.chroot, pkg_repo,
+                              sources=options.sources, fetch=fetches,
+                              mock_opts=mock.mock_opts)
+    else:
+        builder = SRPMBuilder(options.chroot, pkg_repo,
+                              sources=options.sources, fetch=fetches,
+                              mock_opts=mock_opts)
     if not os.path.exists(workspace):
         os.makedirs(workspace)
     if not os.path.exists(builddir):
@@ -416,6 +431,10 @@ def main():
     builder.fetch_sources()
     builder.fetch_spec_sources()
     builder.build_srpm(resultdir)
+
+    if mock:
+        mock.cleanup()
+
     logging.info('Build complete; results in %s', resultdir)
 
 

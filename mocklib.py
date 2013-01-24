@@ -5,10 +5,10 @@ import urllib
 import tempfile
 import shutil
 
-class MockTemp(object):
-    DEFAULT_SITE_CONFIG = '/etc/mock/site-defaults.cfg'
-    DEFAULT_LOGGING_CONFIG = '/etc/mock/logging.ini'
+DEFAULT_SITE_CONFIG = '/etc/mock/site-defaults.cfg'
+DEFAULT_LOGGING_CONFIG = '/etc/mock/logging.ini'
 
+class MockTemp(object):
     def __init__(self, logging, mock_opts=[]):
         # Create mock tempfiles
         self.logging = logging
@@ -34,12 +34,12 @@ class MockTemp(object):
             (self.config_tempfile.name))
 
         # Add default config files
-        if isfile(MockTemp.DEFAULT_SITE_CONFIG):
-            shutil.copy2(MockTemp.DEFAULT_SITE_CONFIG, self.config_tempdir)
+        if isfile(DEFAULT_SITE_CONFIG):
+            shutil.copy2(DEFAULT_SITE_CONFIG, self.config_tempdir)
         else:
             MockTemp._generate_default_config(self.config_tempdir)
-        if isfile(MockTemp.DEFAULT_LOGGING_CONFIG):
-            shutil.copy2(MockTemp.DEFAULT_LOGGING_CONFIG, self.config_tempdir)
+        if isfile(DEFAULT_LOGGING_CONFIG):
+            shutil.copy2(DEFAULT_LOGGING_CONFIG, self.config_tempdir)
         else:
             shutil.copy2('logging.ini', self.config_tempdir)
 
