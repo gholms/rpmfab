@@ -1,11 +1,11 @@
 import os
-import sys
 from os.path import basename, splitext, isdir, isfile
-import urllib
-import tempfile
 import shutil
+import sys
+import tempfile
+import urllib
 
-DEFAULT_SITE_CONFIG = '/etc/mock/site-defaults.cfg'
+DEFAULT_SITE_CONFIG    = '/etc/mock/site-defaults.cfg'
 DEFAULT_LOGGING_CONFIG = '/etc/mock/logging.ini'
 
 class MockTemp(object):

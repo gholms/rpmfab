@@ -11,6 +11,7 @@ import optparse
 import os.path
 import subprocess
 import sys
+
 import mocklib
 
 __version__ = '0.2'
@@ -26,7 +27,8 @@ def build_arch(srpm, chroot, resultdir, mock_opts=None):
     assert len(rpms) > 0
 
 def parse_cli_args():
-    usage = '%prog [-d] [--mock-opts OPTS] [-r CHROOT | -c CONFIG] -o RESULTDIR SRPM'
+    usage = ('%prog [-d] [--mock-opts OPTS] [-r CHROOT | -c CONFIG] '
+             '-o RESULTDIR SRPM')
     parser = optparse.OptionParser(usage=usage,
                                    version='%prog %s'.format(__version__))
     parser.add_option('-d', '--debug', dest='loglevel', action='store_const',
