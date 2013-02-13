@@ -43,6 +43,10 @@ class MockTemp(object):
         else:
             shutil.copy2('logging.ini', self.config_tempdir)
 
+        MockTemp._set_old_filetime(self.config_tempfile.name)
+        MockTemp._set_old_filetime(os.path.join(self.config_tempdir, 'logging.ini'))
+        MockTemp._set_old_filetime(os.path.join(self.config_tempdir, 'site-defaults.cfg'))
+
         # Must set configdir to find temporary mock config file
         self.mock_opts.append('--configdir=%s' % (self.config_tempdir))
         self.chroot = splitext(basename(self.config_tempfile.name))[0]
@@ -52,6 +56,17 @@ class MockTemp(object):
             self.config_tempfile.close()
         if self.config_tempdir:
             shutil.rmtree(self.config_tempdir)
+
+    @staticmethod
+    def _set_old_filetime(file):
+        """
+        Set file time to a week ago.
+        This should prevent mock from always rebuilding the cache.
+        """
+        today = datetime.date.today()
+        week_ago = today - datetime.timedelta(weeks=1)
+        utime_secs = week_ago.strftime('%s.%f')
+        os.utime(file, (utime_secs, utime_secs))
 
     @staticmethod
     def _generate_default_config(dir):
