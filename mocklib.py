@@ -4,6 +4,7 @@ import shutil
 import sys
 import tempfile
 import urllib
+import datetime
 
 DEFAULT_SITE_CONFIG    = '/etc/mock/site-defaults.cfg'
 DEFAULT_LOGGING_CONFIG = '/etc/mock/logging.ini'
