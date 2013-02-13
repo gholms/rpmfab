@@ -67,7 +67,7 @@ class MockTemp(object):
         today = datetime.date.today()
         week_ago = today - datetime.timedelta(weeks=1)
         utime_secs = week_ago.strftime('%s.%f')
-        os.utime(file, (utime_secs, utime_secs))
+        os.utime(file, (float(utime_secs), float(utime_secs)))
 
     @staticmethod
     def _generate_default_config(dir):
