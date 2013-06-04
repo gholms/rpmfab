@@ -49,7 +49,10 @@ class MockTemp(object):
         MockTemp._set_old_filetime(os.path.join(self.config_tempdir, 'site-defaults.cfg'))
 
         # Must set configdir to find temporary mock config file
-        self.mock_opts.append('--configdir=%s' % (self.config_tempdir))
+        # Inserting at the front since newer versions of mock
+        # require this.
+        self.mock_opts.insert(0, '--configdir')
+        self.mock_opts.insert(1, self.config_tempdir)
         self.chroot = splitext(basename(self.config_tempfile.name))[0]
 
     def cleanup(self):
