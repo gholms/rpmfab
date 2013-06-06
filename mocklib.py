@@ -1,13 +1,14 @@
+import datetime
 import os
 from os.path import basename, splitext, isdir, isfile
 import shutil
 import sys
 import tempfile
 import urllib
-import datetime
 
 DEFAULT_SITE_CONFIG    = '/etc/mock/site-defaults.cfg'
 DEFAULT_LOGGING_CONFIG = '/etc/mock/logging.ini'
+
 
 class MockTemp(object):
     def __init__(self, logging, mock_opts=[]):
@@ -19,11 +20,11 @@ class MockTemp(object):
 
     def apply_config(self, config):
         self.cleanup()
-
         self.config = config
         self.config_tempdir = tempfile.mkdtemp(prefix='rpmfab-', dir='/tmp')
         self.config_tempfile = tempfile.NamedTemporaryFile(prefix='mock-',
-            suffix='.cfg', dir=self.config_tempdir)
+                                                           suffix='.cfg',
+                                                           dir=self.config_tempdir)
 
         # Write config file data to temp file
         self.logging.info("reading config file '%s'" % (self.config))
@@ -31,8 +32,8 @@ class MockTemp(object):
         self.config_tempfile.write(config_file.read())
         self.config_tempfile.flush()
         config_file.close()
-        self.logging.info("created temporary mock config '%s'" %
-            (self.config_tempfile.name))
+        self.logging.info("created temporary mock config '{0}'"
+                          .format(self.config_tempfile.name))
 
         # Add default config files
         if isfile(DEFAULT_SITE_CONFIG):
@@ -45,8 +46,10 @@ class MockTemp(object):
             shutil.copy2('logging.ini', self.config_tempdir)
 
         MockTemp._set_old_filetime(self.config_tempfile.name)
-        MockTemp._set_old_filetime(os.path.join(self.config_tempdir, 'logging.ini'))
-        MockTemp._set_old_filetime(os.path.join(self.config_tempdir, 'site-defaults.cfg'))
+        MockTemp._set_old_filetime(os.path.join(self.config_tempdir,
+                                                'logging.ini'))
+        MockTemp._set_old_filetime(os.path.join(self.config_tempdir,
+                                                'site-defaults.cfg'))
 
         # Must set configdir to find temporary mock config file
         # Inserting at the front since newer versions of mock
@@ -82,4 +85,3 @@ config_opts['plugin_conf']['yum_repo_enable'] = True
     """)
         f.close()
         return config_filename
-
