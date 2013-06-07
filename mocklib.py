@@ -22,9 +22,8 @@ class MockTemp(object):
         self.cleanup()
         self.config = config
         self.config_tempdir = tempfile.mkdtemp(prefix='rpmfab-', dir='/tmp')
-        self.config_tempfile = tempfile.NamedTemporaryFile(prefix='mock-',
-                                                           suffix='.cfg',
-                                                           dir=self.config_tempdir)
+        self.config_tempfile = tempfile.NamedTemporaryFile(
+            prefix='mock-', suffix='.cfg', dir=self.config_tempdir)
 
         # Write config file data to temp file
         self.logging.info("reading config file '%s'" % (self.config))
