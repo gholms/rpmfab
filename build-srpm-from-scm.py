@@ -310,7 +310,7 @@ class SRPMBuilder(object):
     def build_srpm(self, resultdir):
         logging.info('Building source RPM in %s using chroot %s', resultdir,
                      self.chroot)
-        args = ['/usr/bin/mock', '-r', self.chroot, '--resultdir', resultdir]
+        args = ['/usr/bin/mock', '-v', '-r', self.chroot, '--resultdir', resultdir]
         args.extend(self.mock_opts or [])
         args.extend(['--buildsrpm', '--spec', self.specfile, '--sources',
                      os.getcwd()])

@@ -18,7 +18,7 @@ __version__ = '0.2'
 
 def build_arch(srpm, chroot, resultdir, mock_opts=None):
     logging.info('Building RPMs in %s using chroot %s', resultdir, chroot)
-    args = ['/usr/bin/mock', '-r', chroot, '--resultdir', resultdir]
+    args = ['/usr/bin/mock', '-v', '-r', chroot, '--resultdir', resultdir]
     args.extend(mock_opts or [])
     args.extend(['--rebuild', srpm])
     logging.debug("Executing ``%s''", ' '.join(args))
